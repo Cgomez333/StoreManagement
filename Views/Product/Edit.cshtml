@@ -1,0 +1,80 @@
+﻿@model StoreManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+<div class="mb-5">
+
+<h1 class="mb-4">Editar Producto</h1>
+
+<div class="container">
+    <div class="card shadow rounded-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                @* Campo oculto para mantener el ID del producto *@
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Nombre</label>
+                    <input asp-for="Name" class="form-control" placeholder="Ingrese el nombre del producto" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Descripción</label>
+                    <textarea asp-for="Description" class="form-control" placeholder="Ingrese una descripción del producto"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label">Precio</label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Ingrese el precio" />
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Stock" class="form-label">Stock</label>
+                    <input asp-for="Stock" class="form-control" type="number" placeholder="Cantidad en inventario" />
+                    <span asp-validation-for="Stock" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label">Categoría</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SupplierId" class="form-label">Proveedor</label>
+                    <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.SupplierId"></select>
+                    <span asp-validation-for="SupplierId" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn gradient-bg text-light">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+@section Scripts {
+    <script>
+
+        function updateCategory(selectElement) {
+            const selectedCategory = selectElement.options[selectElement.selectedIndex].text;
+            document.querySelector('input[asp-for="Category"]').value = selectedCategory;
+        }
+
+        function updateSupplier(selectElement) {
+            const selectedSupplier = selectElement.options[selectElement.selectedIndex].text;
+            document.querySelector('input[asp-for="Supplier"]').value = selectedSupplier;
+        }
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

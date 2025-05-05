@@ -1,0 +1,46 @@
+﻿@model StoreManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Eliminar Producto";
+}
+<div class="mb-5">
+
+<h1 class="mb-4">Eliminar Producto</h1>
+
+<div class="container">
+    <div class="card shadow rounded-4">
+        <div class="card-body p-4">
+            <h4>¿Estás seguro de que deseas eliminar este producto? <strong class="text-danger">Esta acción es irreversible.</strong></h4>
+            <hr />
+
+            <dl class="row">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Descripción</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Precio</dt>
+                <dd class="col-sm-9">@Model.Price.ToString("C")</dd>
+
+                <dt class="col-sm-3">Stock</dt>
+                <dd class="col-sm-9">@Model.Stock</dd>
+
+                <dt class="col-sm-3">Categoría</dt>
+                <dd class="col-sm-9">@Model.Category?.Name</dd>
+
+                <dt class="col-sm-3">Proveedor</dt>
+                <dd class="col-sm-9">@Model.Supplier?.Name</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>

@@ -3,9 +3,9 @@
 
     namespace StoreManagement.Models
     {
-        public class InventoryDbContext : DbContext
+        public class StoreDbContext : DbContext
         {
-            public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options)
+            public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options)
             {
             }
 

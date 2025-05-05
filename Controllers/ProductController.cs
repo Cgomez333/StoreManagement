@@ -1,15 +1,16 @@
 ﻿
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using StoreManagement.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using StoreManagement.Models;
 
     namespace StoreManagement.Controllers
     {
         public class ProductController : Controller
         {
-            private readonly InventoryDbContext _context;
+            private readonly StoreDbContext _context;
 
-            public ProductController(InventoryDbContext context)
+            public ProductController(StoreDbContext context)
             {
                 _context = context;
             }
@@ -24,7 +25,7 @@
                 return View(products);
             }
 
-            // GET: Product/Details/5
+            // GET: Product/Details/{id}
             public async Task<IActionResult> Details(int? id)
             {
                 if (id == null) return NotFound();
@@ -42,6 +43,8 @@
             // GET: Product/Create
             public IActionResult Create()
             {
+                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
+                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name");
                 return View();
             }
 
@@ -56,11 +59,13 @@
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-
+                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
+                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name");
                 return View(product);
             }
 
-            // GET: Product/Edit/5
+        // GET: Product/Edit/5
+        [HttpGet]
             public async Task<IActionResult> Edit(int? id)
             {
                 if (id == null) return NotFound();
@@ -68,6 +73,9 @@
                 var product = await _context.Products.FindAsync(id);
                 if (product == null) return NotFound();
 
+
+                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
                 return View(product);
             }
 
@@ -77,23 +85,27 @@
             public async Task<IActionResult> Edit(int id, Product product)
             {
                 if (id != product.Id) return NotFound();
-
+                
                 if (ModelState.IsValid)
+            {
+                try
                 {
-                    try
-                    {
-                        _context.Update(product);
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!_context.Products.Any(p => p.Id == id))
-                            return NotFound();
-
-                        throw;
-                    }
+                    _context.Update(product);
+                    await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
+
                 }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Products.Any(p => p.Id == id))
+                        return NotFound();
+
+                    throw;
+                }
+            }
+
+                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
                 return View(product);
             }
 

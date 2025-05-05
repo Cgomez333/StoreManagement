@@ -1,8 +1,52 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero d-flex align-items-center text-white" style="height: 90vh;">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold gradient-text">Bienvenido a StoreManagement</h1>
+        <p class="lead text-black mb-4">Gestiona tus productos, inventario y proveedores en una sola plataforma moderna.</p>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-lg text-light px-4 shadow-sm gradient-bg">Ir al Panel de Productos</a>
+    </div>
+</section>
+
+<section class="py-5 bg-light rounded-3 shadow-sm">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">¿Qué puedes hacer?</h2>
+            <p class="text-muted">Funciones destacadas de nuestro sistema</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
+                    <i class="bi bi-box-seam fs-1 text-black mb-3"></i>
+                    <h5 class="fw-semibold">Gestión de Productos</h5>
+                    <p class="text-muted">Crea, edita, elimina y visualiza productos de forma rápida y sencilla.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
+                    <i class="bi bi-bar-chart-line fs-1 text-black mb-3"></i>
+                    <h5 class="fw-semibold">Inventario en Tiempo Real</h5>
+                    <p class="text-muted">Visualiza el stock disponible y mantén el control del inventario.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
+                    <i class="bi bi-truck fs-1 text-black mb-3"></i>
+                    <h5 class="fw-semibold">Gestión de Proveedores</h5>
+                    <p class="text-muted">Administra tus proveedores y optimiza el abastecimiento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <h3 class="fw-bold mb-3">¿Listo para comenzar?</h3>
+        <p class="text-muted mb-4">Empieza a gestionar tu tienda de forma eficiente y moderna.</p>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-primary btn-lg px-5 gradient-bg" style="border: none;">Explorar Productos</a>
+    </div>
+</section>

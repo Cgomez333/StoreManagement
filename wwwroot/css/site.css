@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 html {
   font-size: 14px;
 }
@@ -18,5 +20,45 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f3f3;
+}
+
+main {
+    margin-bottom: 5rem;
+}
+
+
+table.table th, table.table td {
+    text-align: center;
+}
+
+
+.btn {
+    font-weight: bold;
+}
+
+.btn-hover-primary:hover {
+    background-color: #0094ff; /* Azul (Bootstrap Primary) */
+    border-color: #0094ff;
+}
+
+.btn-hover-info:hover {
+    background-color: #0094ff; /* Azul claro (Bootstrap Info) */
+    border-color: #0094ff;
+}
+
+.btn-hover-danger:hover {
+    background-color: #dc3545; /* Rojo (Bootstrap Danger) */
+    border-color: #dc3545;
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #9146FF, #5a2bb0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gradient-bg {
+    background: linear-gradient(to right, #9146FF, #5a2bb0);
 }

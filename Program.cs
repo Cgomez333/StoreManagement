@@ -10,8 +10,9 @@ namespace StoreManagement
             var builder = WebApplication.CreateBuilder(args);
 
             // ?? Agrega esta línea para registrar el DbContext
-            builder.Services.AddDbContext<InventoryDbContext>(options =>
+            builder.Services.AddDbContext<StoreDbContext>(options =>
                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
             // Servicios MVC

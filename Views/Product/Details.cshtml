@@ -1,0 +1,41 @@
+﻿@model StoreManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Detalles del Producto";
+}
+<div class="mb-5">
+
+<h1>Detalles del Producto</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">Nombre</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
+
+        <dt class="col-sm-2">Precio</dt>
+        <dd class="col-sm-10">@Model.Price.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))</dd>
+
+        <dt class="col-sm-2">Stock</dt>
+        <dd class="col-sm-10">@Model.Stock.ToString() unidades</dd>
+
+        <dt class="col-sm-2">Categoría</dt>
+        <dd class="col-sm-10">@Model.Category?.Name <strong>(ID: @Model.Category?.Id)</strong></dd>
+
+        <dt class="col-sm-2">Proveedor</dt>
+        <dd class="col-sm-10">@Model.Supplier?.Name <strong>(ID: @Model.Supplier?.Id)</strong></dd>
+    </dl>
+    <hr />
+</div>
+</div>
+
+<div class="text-center">
+    <a class="btn gradient-bg text-light" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+    <a class="btn btn-secondary" asp-action="Index">Volver a la lista</a>
+</div>
