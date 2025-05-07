@@ -21,10 +21,10 @@
                 <dd class="col-sm-9">@Model.Description</dd>
 
                 <dt class="col-sm-3">Precio</dt>
-                <dd class="col-sm-9">@Model.Price.ToString("C")</dd>
+                    <dd class="col-sm-9">@Model.Price.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))</dd>
 
                 <dt class="col-sm-3">Stock</dt>
-                <dd class="col-sm-9">@Model.Stock</dd>
+                <dd class="col-sm-9">@Model.Stock unidades</dd>
 
                 <dt class="col-sm-3">Categoría</dt>
                 <dd class="col-sm-9">@Model.Category?.Name</dd>

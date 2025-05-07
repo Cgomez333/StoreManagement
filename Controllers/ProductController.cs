@@ -1,139 +1,162 @@
-﻿
-    using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 
-    namespace StoreManagement.Controllers
+namespace StoreManagement.Controllers
+{
+    public class ProductController : Controller
     {
-        public class ProductController : Controller
+        private readonly StoreDbContext _context;
+        private readonly ProductService _service;
+
+        public ProductController(StoreDbContext context)
+        {
+            _context = context;
+            _service = new ProductService(context);
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var products = await _service.GetAllAsync();
+            return View(products);
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+            var product = await _service.GetByIdAsync(id.Value);
+            if (product == null) return NotFound();
+            return View(product);
+        }
+
+        public IActionResult Create()
+        {
+            LoadViewBags();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Product product)
+        {
+            if (ModelState.IsValid)
+            {
+                await _service.CreateAsync(product);
+                return RedirectToAction(nameof(Index));
+            }
+            LoadViewBags();
+            return View(product);
+        }
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+            var product = await _service.FindAsync(id.Value);
+            if (product == null) return NotFound();
+            LoadViewBags(product.CategoryId, product.SupplierId);
+            return View(product);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Product product)
+        {
+            if (id != product.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var success = await _service.UpdateAsync(product);
+                if (!success) return NotFound();
+                return RedirectToAction(nameof(Index));
+            }
+
+            LoadViewBags(product.CategoryId, product.SupplierId);
+            return View(product);
+        }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+            var product = await _service.GetByIdAsync(id.Value);
+            if (product == null) return NotFound();
+            return View(product);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _service.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void LoadViewBags(int? categoryId = null, int? supplierId = null)
+        {
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", categoryId);
+            ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name", supplierId);
+        }
+
+        // Clase interna ProductService
+        private class ProductService
         {
             private readonly StoreDbContext _context;
 
-            public ProductController(StoreDbContext context)
+            public ProductService(StoreDbContext context)
             {
                 _context = context;
             }
 
-            // GET: Product
-            public async Task<IActionResult> Index()
+            public async Task<List<Product>> GetAllAsync()
             {
-                var products = await _context.Products
+                return await _context.Products
                     .Include(p => p.Category)
                     .Include(p => p.Supplier)
+                    .OrderBy(p => p.Id)
                     .ToListAsync();
-                return View(products);
             }
 
-            // GET: Product/Details/{id}
-            public async Task<IActionResult> Details(int? id)
+            public async Task<Product?> GetByIdAsync(int id)
             {
-                if (id == null) return NotFound();
-
-                var product = await _context.Products
+                return await _context.Products
                     .Include(p => p.Category)
                     .Include(p => p.Supplier)
                     .FirstOrDefaultAsync(p => p.Id == id);
-
-                if (product == null) return NotFound();
-
-                return View(product);
             }
 
-            // GET: Product/Create
-            public IActionResult Create()
+            public async Task<Product?> FindAsync(int id)
             {
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
-                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name");
-                return View();
+                return await _context.Products.FindAsync(id);
             }
 
-            // POST: Product/Create
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create(Product product)
+            public async Task CreateAsync(Product product)
             {
-                if (ModelState.IsValid)
-                {
-                    _context.Add(product);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
-                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name");
-                return View(product);
-            }
+                var existingIds = await _context.Products.Select(p => p.Id).ToListAsync();
+                int newId = 1;
+                while (existingIds.Contains(newId)) newId++;
+                product.Id = newId;
 
-        // GET: Product/Edit/5
-        [HttpGet]
-            public async Task<IActionResult> Edit(int? id)
-            {
-                if (id == null) return NotFound();
-
-                var product = await _context.Products.FindAsync(id);
-                if (product == null) return NotFound();
-
-
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
-                return View(product);
-            }
-
-            // POST: Product/Edit/5
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Edit(int id, Product product)
-            {
-                if (id != product.Id) return NotFound();
-                
-                if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Products.Any(p => p.Id == id))
-                        return NotFound();
-
-                    throw;
-                }
-            }
-
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-                ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
-                return View(product);
-            }
-
-            // GET: Product/Delete/5
-            public async Task<IActionResult> Delete(int? id)
-            {
-                if (id == null) return NotFound();
-
-                var product = await _context.Products
-                    .Include(p => p.Category)
-                    .Include(p => p.Supplier)
-                    .FirstOrDefaultAsync(p => p.Id == id);
-
-                if (product == null) return NotFound();
-
-                return View(product);
-            }
-
-            // POST: Product/Delete/5
-            [HttpPost, ActionName("Delete")]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> DeleteConfirmed(int id)
-            {
-                var product = await _context.Products.FindAsync(id);
-                _context.Products.Remove(product);
+                _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            }
+
+            public async Task<bool> UpdateAsync(Product product)
+            {
+                if (!_context.Products.Any(p => p.Id == product.Id)) return false;
+                _context.Products.Update(product);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            public async Task DeleteAsync(int id)
+            {
+                var product = await _context.Products.FindAsync(id);
+                if (product != null)
+                {
+                    _context.Products.Remove(product);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
     }
-
+}
