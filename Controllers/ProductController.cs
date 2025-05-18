@@ -9,18 +9,47 @@ namespace StoreManagement.Controllers
     {
         private readonly StoreDbContext _context;
         private readonly ProductService _service;
+        private const int PageSize = 10;
 
         public ProductController(StoreDbContext context)
         {
             _context = context;
-            _service = new ProductService(context);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchName, int? searchCategory, int? searchSupplier, int page = 1)
         {
-            var products = await _service.GetAllAsync();
+            var query = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchName))
+                query = query.Where(p => p.Name.Contains(searchName));
+
+            if (searchCategory.HasValue)
+                query = query.Where(p => p.CategoryId == searchCategory.Value);
+
+            if (searchSupplier.HasValue)
+                query = query.Where(p => p.SupplierId == searchSupplier.Value);
+
+            int totalItems = await query.CountAsync();
+            var products = await query
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+            ViewBag.Suppliers = await _context.Suppliers.ToListAsync();
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
+            ViewBag.SearchName = searchName;
+            ViewBag.SearchCategory = searchCategory;
+            ViewBag.SearchSupplier = searchSupplier;
+
             return View(products);
         }
+
 
         public async Task<IActionResult> Details(int? id)
         {
