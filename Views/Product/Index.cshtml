@@ -38,7 +38,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                <button type="submit" class="btn text-light gradient-bg w-100">Buscar</button>
             </div>
         </div>
     </form>
@@ -87,16 +87,26 @@
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
             <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { page = currentPage - 1, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">Anterior</a>
+                <a class="page-link @(currentPage == 1 ? "" : "text-dark")"
+                   href="@Url.Action("Index", new { page = currentPage - 1, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">
+                    Anterior
+                </a>
             </li>
             @for (int i = 1; i <= totalPages; i++)
             {
-                <li class="page-item @(i == currentPage ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Index", new { page = i, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">@i</a>
+                var isActive = i == currentPage;
+                <li class="page-item @(isActive ? "active" : "")">
+                    <a class="page-link @(isActive ? "text-light gradient-bg border-0" : "text-dark")"
+                       href="@Url.Action("Index", new { page = i, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">
+                        @i
+                    </a>
                 </li>
             }
             <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { page = currentPage + 1, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">Siguiente</a>
+                <a class="page-link @(currentPage == totalPages ? "" : "text-dark")"
+                   href="@Url.Action("Index", new { page = currentPage + 1, searchName = ViewBag.SearchName, searchCategory = ViewBag.SearchCategory, searchSupplier = ViewBag.SearchSupplier })">
+                    Siguiente
+                </a>
             </li>
         </ul>
     </nav>
