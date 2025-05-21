@@ -15,9 +15,19 @@ namespace StoreManagement.Controllers
             _service = new CustomerService(context);
         }
 
-        public async Task<IActionResult> Index()
+        // Método Index con búsqueda y paginación
+        public async Task<IActionResult> Index(string? searchName, int page = 1, int pageSize = 5)
         {
-            var customers = await _service.GetAllAsync();
+            var (customers, totalRecords) = await _service.GetPagedAsync(searchName, page, pageSize);
+
+            int totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.SearchName = searchName;
+
             return View(customers);
         }
 
@@ -102,12 +112,25 @@ namespace StoreManagement.Controllers
                 _context = context;
             }
 
-            public async Task<List<Customer>> GetAllAsync()
+            // Método paginado con búsqueda por nombre
+            public async Task<(List<Customer>, int totalRecords)> GetPagedAsync(string? searchName, int page, int pageSize)
             {
-                return await _context.Customers
-                    .Include(c => c.Sales)
+                var query = _context.Customers.AsQueryable();
+
+                if (!string.IsNullOrEmpty(searchName))
+                {
+                    query = query.Where(c => EF.Functions.Like(c.Name, $"%{searchName}%"));
+                }
+
+                int totalRecords = await query.CountAsync();
+
+                var data = await query
                     .OrderBy(c => c.Id)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
+
+                return (data, totalRecords);
             }
 
             public async Task<Customer?> GetByIdAsync(int id)
