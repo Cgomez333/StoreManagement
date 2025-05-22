@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using System.Globalization;
 
 namespace StoreManagement
 {
@@ -17,6 +18,13 @@ namespace StoreManagement
 
             // Servicios MVC
             builder.Services.AddControllersWithViews();
+
+            var culture = new CultureInfo("es-CO")
+            {
+                NumberFormat = { NumberDecimalSeparator = "." }
+            };
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
 
             var app = builder.Build();
 

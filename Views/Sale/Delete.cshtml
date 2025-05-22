@@ -1,0 +1,37 @@
+﻿@model StoreManagement.Models.Sale
+
+@{
+    ViewData["Title"] = "Eliminar venta";
+}
+
+<div class="mb-5">
+    <h1 class="mb-4">Eliminar Venta</h1>
+
+    <div class="container">
+        <div class="card shadow rounded-4">
+            <div class="card-body p-4">
+                <h4>¿Estás seguro de que deseas eliminar esta venta? <strong class="text-danger">Esta acción es irreversible.</strong></h4>
+                <hr />
+
+                <dl class="row">
+                    <dt class="col-sm-3">Fecha</dt>
+                    <dd class="col-sm-9">@Model.Date.ToString("yyyy-MM-dd")</dd>
+
+                    <dt class="col-sm-3">Total</dt>
+                    <dd class="col-sm-9">@Model.Total.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))</dd>
+
+                    <dt class="col-sm-3">Cliente</dt>
+                    <dd class="col-sm-9">@Model.Customer?.Name</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

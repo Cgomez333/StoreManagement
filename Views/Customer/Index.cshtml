@@ -1,0 +1,90 @@
+﻿@model IEnumerable<StoreManagement.Models.Customer>
+
+@{
+    ViewData["Title"] = "Lista de Clientes";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div>
+    <h1>Lista de Clientes</h1>
+
+    <form asp-action="Index" method="get" class="mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label for="searchName" class="form-label">Nombre</label>
+                <input type="text" name="searchName" id="searchName" value="@ViewBag.SearchName" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn text-light gradient-bg w-100">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped table-bordered align-middle my-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td><i class="bi bi-person pe-2"></i>@item.Name</td>
+                    <td><i class="bi bi-envelope-at pe-2"></i>@item.Email</td>
+                    <td><i class="bi bi-telephone pe-2"></i>@item.Phone</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Editar</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Detalles</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-danger">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @{
+    int maxPagesToShow = 5;
+    int startPage = Math.Max(1, currentPage - maxPagesToShow / 2);
+    int endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+    if (endPage - startPage < maxPagesToShow - 1)
+    {
+        startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+    }
+}
+
+<nav aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link @(currentPage == 1 ? "" : "text-dark")"
+               href="@Url.Action("Index", new { page = 1, searchName = ViewBag.SearchName })">
+                Primera
+            </a>
+        </li>
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            var isActive = i == currentPage;
+            <li class="page-item @(isActive ? "active" : "")">
+                <a class="page-link @(isActive ? "text-light gradient-bg border-0" : "text-dark")"
+                   href="@Url.Action("Index", new { page = i, searchName = ViewBag.SearchName })">
+                    @i
+                </a>
+            </li>
+        }
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link @(currentPage == totalPages ? "" : "text-dark")"
+               href="@Url.Action("Index", new { page = totalPages, searchName = ViewBag.SearchName })">
+                Última
+            </a>
+        </li>
+    </ul>
+</nav>
+
+    <a class="btn text-light gradient-bg" asp-action="Create"><i class="bi bi-person-fill-add pe-2"></i>Crear nuevo cliente</a>
+</div>

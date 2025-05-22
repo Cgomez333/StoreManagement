@@ -9,7 +9,7 @@ namespace StoreManagement.Controllers
     {
         private readonly StoreDbContext _context;
         private readonly ProductService _service;
-        private const int PageSize = 10;
+        private const int PageSize = 5;
 
         public ProductController(StoreDbContext context)
         {

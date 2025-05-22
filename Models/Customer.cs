@@ -10,7 +10,7 @@
 
         public string Phone { get; set; }
 
-        public ICollection<Sale> Sales { get; set; }
+        public ICollection<Sale>? Sales { get; set; }
     }
 
 }

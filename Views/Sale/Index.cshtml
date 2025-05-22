@@ -1,41 +1,25 @@
-﻿@model IEnumerable<StoreManagement.Models.Product>
+﻿@model IEnumerable<StoreManagement.Models.Sale>
 
 @{
-    ViewData["Title"] = "Lista de Productos";
-    var categories = ViewBag.Categories as List<StoreManagement.Models.Category>;
-    var suppliers = ViewBag.Suppliers as List<StoreManagement.Models.Supplier>;
+    ViewData["Title"] = "Lista de Ventas";
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
+    string searchCustomerName = ViewBag.SearchCustomerName ?? "";
+    string searchDate = ViewBag.SearchDate ?? "";
 }
 
 <div>
-    <h1>Lista de Productos</h1>
+    <h1>Lista de Ventas</h1>
 
-        <form asp-action="Index" method="get" class="mb-3">
+    <form asp-action="Index" method="get" class="mb-3">
         <div class="row g-2 align-items-end">
             <div class="col-md-4">
-                <label for="searchName" class="form-label">Nombre</label>
-                <input type="text" name="searchName" id="searchName" value="@ViewBag.SearchName" class="form-control" />
+                <label for="searchCustomerName" class="form-label">Cliente</label>
+                <input type="text" name="searchCustomerName" id="searchCustomerName" value="@searchCustomerName" class="form-control" placeholder="Buscar por nombre de cliente" />
             </div>
             <div class="col-md-3">
-                <label for="searchCategory" class="form-label">Categoría</label>
-                <select name="searchCategory" id="searchCategory" class="form-select">
-                    <option value="">Todas</option>
-                    @foreach (var cat in categories)
-                    {
-                        <option value="@cat.Id" selected="@(ViewBag.SearchCategory?.ToString() == cat.Id.ToString() ? "selected" : null)">@cat.Name</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="searchSupplier" class="form-label">Proveedor</label>
-                <select name="searchSupplier" id="searchSupplier" class="form-select">
-                    <option value="">Todos</option>
-                    @foreach (var sup in suppliers)
-                    {
-                        <option value="@sup.Id" selected="@(ViewBag.SearchSupplier?.ToString() == sup.Id.ToString() ? "selected" : null)">@sup.Name</option>
-                    }
-                </select>
+                <label for="searchDate" class="form-label">Fecha</label>
+                <input type="date" name="searchDate" id="searchDate" value="@searchDate" class="form-control" />
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn text-light gradient-bg w-100">Buscar</button>
@@ -47,11 +31,9 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Cliente</th>
                 <th></th>
             </tr>
         </thead>
@@ -60,20 +42,9 @@
             {
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.Name</td>
-                    <td>@item.Price.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))</td>
-                    <td>
-                        @if (item.Stock < 10)
-                        {
-                            <span class="text-danger font-weight-bold">@item.Stock.ToString() (Bajo stock)</span>
-                        }
-                        else
-                        {
-                            <span>@item.Stock.ToString()</span>
-                        }
-                    </td>
-                    <td>@item.Category?.Name</td>
-                    <td>@item.Supplier?.Name</td>
+                    <td><i class="bi bi-calendar2-check pe-2"></i>@item.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Total.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))</td>
+                    <td><i class="bi bi-person pe-2"></i>@item.Customer?.Name</td>
                     <td class="text-center">
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Editar</a>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Detalles</a>
@@ -121,6 +92,5 @@
         </ul>
     </nav>
 
-    <a class="btn text-light gradient-bg" asp-action="Create">Crear nuevo producto</a>
-
+    <a class="btn text-light gradient-bg" asp-action="Create"><i class="bi bi-cart-plus-fill pe-2"></i>Crear nueva venta</a>
 </div>
