@@ -14,6 +14,7 @@ namespace StoreManagement.Controllers
         public ProductController(StoreDbContext context)
         {
             _context = context;
+            _service = new ProductService(_context);
         }
 
         public async Task<IActionResult> Index(string searchName, int? searchCategory, int? searchSupplier, int page = 1)

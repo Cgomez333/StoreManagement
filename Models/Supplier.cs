@@ -8,7 +8,7 @@
 
         public string Contact { get; set; }
 
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Product>? Products { get; set; }
     }
 
 }

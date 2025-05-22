@@ -1,0 +1,31 @@
+﻿@model StoreManagement.Models.Category
+
+@{
+    ViewData["Title"] = "Eliminar Categoría";
+}
+
+<div class="mb-5">
+    <h1 class="mb-4">¿Está seguro que desea eliminar esta categoría?</h1>
+
+    <div class="container">
+        <div class="card shadow rounded-4 border-danger">
+            <div class="card-body p-4">
+                <dl class="row">
+                    <dt class="col-sm-2">ID</dt>
+                    <dd class="col-sm-10">@Model.Id</dd>
+
+                    <dt class="col-sm-2">Nombre</dt>
+                    <dd class="col-sm-10">@Model.Name</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
