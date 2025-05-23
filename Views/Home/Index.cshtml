@@ -2,51 +2,109 @@
     ViewData["Title"] = "Inicio";
 }
 
-<section class="hero d-flex align-items-center text-white" style="height: 90vh;">
+<style>
+    main[role="main"] {
+        margin: 0 !important;
+    }
+
+    .hero {
+        position: relative; /* necesario para overlay */
+        background: url('/Images/banner_gradient_background.png') no-repeat center center;
+        background-size: cover;
+        height: 90vh;
+        width: 100%; /* ancho total de ventana */
+        margin: 0; /* quitar márgenes */
+        padding: 0; /* quitar padding */
+    }
+
+    .hero > .container {
+        position: relative;
+        z-index: 2;
+        padding-left: 0; /* quitar padding de container */
+        padding-right: 0; /* quitar padding de container */
+        max-width: 100%; /* ancho total */
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background-color: rgba(0,0,0,0.4); /* overlay oscuro semi-transparente */
+    }
+
+    main {
+        margin: 0;
+        padding: 0;
+    }
+
+</style>
+
+<div class="mb-5">
+<section class="hero d-flex align-items-center" style="height: 90vh;">
     <div class="container text-center">
-        <h1 class="display-4 fw-bold gradient-text">Bienvenido a StoreManagement</h1>
-        <p class="lead text-black mb-4">Gestiona tus productos, inventario y proveedores en una sola plataforma moderna.</p>
-        <a asp-controller="Product" asp-action="Index" class="btn btn-lg text-light px-4 shadow-sm gradient-bg">Ir al Panel de Productos</a>
+        <h1 class="display-4 fw-bold text-light mb-3">Bienvenido a StoreManagement</h1>
+        <p class="text-light mb-4 fs-5" style="max-width: 700px; margin-left: auto; margin-right:auto">
+            Administra <strong>ventas</strong>, <strong>productos</strong>, <strong>categorías</strong>, <strong>proveedores</strong>, <strong>movimientos</strong> e <strong>estadísticas en tiempo real</strong> en una plataforma moderna y eficiente.
+        </p>
+        <a asp-controller="Account" asp-action="Login"
+           class="btn btn-lg btn-light px-5 shadow-sm"
+           style="border-radius: 50px; font-weight: 600; color=black;">
+            Iniciar Sesión
+        </a>
     </div>
 </section>
 
 <section class="py-5 bg-light rounded-3 shadow-sm">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">¿Qué puedes hacer?</h2>
-            <p class="text-muted">Funciones destacadas de nuestro sistema</p>
+            <h2 class="fw-bold">¿Qué puedes hacer con StoreManagement?</h2>
+            <p class="text-muted fs-5">Todas las herramientas para controlar y crecer tu negocio</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-4 text-center">
-                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
-                    <i class="bi bi-box-seam fs-1 text-black mb-3"></i>
-                    <h5 class="fw-semibold">Gestión de Productos</h5>
-                    <p class="text-muted">Crea, edita, elimina y visualiza productos de forma rápida y sencilla.</p>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
+                    <i class="bi bi-cash-stack fs-1 gradient-text mb-3"></i>
+                    <h5 class="fw-semibold">Gestión de Ventas</h5>
+                    <p class="text-muted fs-6">Registra, modifica y consulta todas tus ventas con detalles precisos y control total.</p>
                 </div>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
-                    <i class="bi bi-bar-chart-line fs-1 text-black mb-3"></i>
-                    <h5 class="fw-semibold">Inventario en Tiempo Real</h5>
-                    <p class="text-muted">Visualiza el stock disponible y mantén el control del inventario.</p>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
+                    <i class="bi bi-box-seam fs-1 gradient-text mb-3"></i>
+                    <h5 class="fw-semibold">Gestión de Productos y Categorías</h5>
+                    <p class="text-muted fs-6">Organiza tu catálogo con facilidad y mantiene la información actualizada en todo momento.</p>
                 </div>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="bg-white rounded-3 p-4 shadow-sm h-100">
-                    <i class="bi bi-truck fs-1 text-black mb-3"></i>
-                    <h5 class="fw-semibold">Gestión de Proveedores</h5>
-                    <p class="text-muted">Administra tus proveedores y optimiza el abastecimiento.</p>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
+                    <i class="bi bi-truck fs-1 gradient-text mb-3"></i>
+                    <h5 class="fw-semibold">Proveedores y Movimientos</h5>
+                    <p class="text-muted fs-6">Administra proveedores, controla inventarios y movimientos para una logística eficiente.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 mx-auto mt-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
+                    <i class="bi bi-bar-chart-line fs-1 gradient-text mb-3"></i>
+                    <h5 class="fw-semibold">Estadísticas en Tiempo Real</h5>
+                    <p class="text-muted fs-6">Visualiza métricas y reportes que te ayudan a tomar decisiones rápidas y acertadas.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5">
-    <div class="container text-center">
-        <h3 class="fw-bold mb-3">¿Listo para comenzar?</h3>
-        <p class="text-muted mb-4">Empieza a gestionar tu tienda de forma eficiente y moderna.</p>
-        <a asp-controller="Product" asp-action="Index" class="btn btn-primary btn-lg px-5 gradient-bg" style="border: none;">Explorar Productos</a>
+<section class="py-5 text-center">
+    <div class="container">
+        <h3 class="fw-bold mb-3">¿Listo para optimizar tu negocio?</h3>
+        <p class="text-muted fs-5 mb-4">Comienza con una plataforma intuitiva que centraliza todas las operaciones.</p>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-lg px-5 gradient-bg text-light">
+            Iniciar Sesión Ahora
+        </a>
     </div>
 </section>
+</div>

@@ -13,47 +13,71 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark gradient-bg">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-white" asp-area="" asp-controller="Home" asp-action="Index">StoreManagement</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand fw-bold gradient-text" asp-area="" asp-controller="Home" asp-action="Index">
+                    StoreManagement
+                </a>
+                <button class="navbar-toggler border-0"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+                <div class="collapse navbar-collapse" id="navbarNav" style="transition: max-height 0.3s ease;">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3 gap-2">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link fw-semibold" asp-controller="Product" asp-action="Index">
+                                <i class="bi bi-box-seam me-1"></i> Productos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Product" asp-action="Index">Productos</a>
+                            <a class="nav-link fw-semibold" asp-controller="Category" asp-action="Index">
+                                <i class="bi bi-tags-fill me-1"></i> Categorías
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Category" asp-action="Index">Categorias</a>
+                            <a class="nav-link fw-semibold" asp-controller="Supplier" asp-action="Index">
+                                <i class="bi bi-truck me-1"></i> Proveedores
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Supplier" asp-action="Index">Proveedores</a>
+                            <a class="nav-link fw-semibold" asp-controller="InventoryMovement" asp-action="Index">
+                                <i class="bi bi-arrow-repeat me-1"></i> Movimientos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="InventoryMovement" asp-action="Index">Movimientos</a>
-                        </li>
-                        <li>
-                            <a class="nav-link text-white" asp-controller="Customer" asp-action="Index">Clientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Sale" asp-action="Index">Ventas</a>
+                            <a class="nav-link fw-semibold" asp-controller="Customer" asp-action="Index">
+                                <i class="bi bi-people-fill me-1"></i> Clientes
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+                            <a class="nav-link fw-semibold" asp-controller="Sale" asp-action="Index">
+                                <i class="bi bi-cash-stack me-1"></i> Ventas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Privacidad
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
+
     </header>
 
 
-    <main role="main" class="m-5 pb-3 flex-grow-1">
+    <main role="main" class="m-5 pb-3 flex-grow-1 @ViewData["MainExtraClass"]">
         @RenderBody()
     </main>
 

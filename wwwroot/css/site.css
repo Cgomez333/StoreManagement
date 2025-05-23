@@ -54,14 +54,179 @@ table.table th, table.table td {
 }
 
 .gradient-text {
-    background: linear-gradient(to right, #2e1802, #5c3606);
+    background: linear-gradient(to right, #082B53, #2D779A);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .gradient-bg {
-    background: linear-gradient(to right, #2e1802, #5c3606);
+    background: linear-gradient(to right, #082B53, #2D779A);
 }
 
 i{
 }
+
+.tag {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    border: 1px solid #d9d9d9;
+    background-color: #f0f0f0;
+    color: #555;
+    line-height: 1;
+}
+
+.tag-positive {
+    background-color: #f6ffed;
+    color: #389e0d;
+    border-color: #b7eb8f;
+}
+
+.tag-negative {
+    background-color: #fff1f0;
+    color: #cf1322;
+    border-color: #ffa39e;
+}
+
+/* Gradientes para KPI cards */
+.gradient-1 {
+    background: linear-gradient(90deg, #1cc88a, #17a673);
+}
+
+.gradient-2 {
+    background: linear-gradient(90deg, #4e73df, #224abe);
+}
+
+.gradient-3 {
+    background: linear-gradient(90deg, #f6c23e, #dda20a);
+}
+
+.gradient-4 {
+    background: linear-gradient(90deg, #e74a3b, #be2617);
+}
+
+/* Gradientes para Chart headers */
+.gradient-5 {
+    background: linear-gradient(90deg, #20c997, #1ab188);
+}
+
+.gradient-6 {
+    background: linear-gradient(90deg, #ff9f43, #e07a5f);
+}
+
+.gradient-7 {
+    background: linear-gradient(90deg, #36b9cc, #2c9faf);
+}
+
+.gradient-8 {
+    background: linear-gradient(90deg, #f6c23e, #dda20a);
+}
+
+/* KPI cards */
+.card-kpi {
+    position: relative;
+    color: white;
+    overflow: hidden;
+    border: none;
+    border-radius: .75rem;
+}
+
+    .card-kpi .bi {
+        position: absolute;
+        top: .75rem;
+        right: .75rem;
+        font-size: 3rem;
+        opacity: .2;
+    }
+
+/* Chart cards */
+.chart-card {
+    border: none;
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+    .chart-card .card-header {
+        border-bottom: none;
+    }
+
+/* Tag gris */
+.tag {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    border: 1px solid #d9d9d9;
+    background-color: #f0f0f0;
+    color: #555;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Tabla custom */
+.table-custom thead {
+    background-color: #f8f9fc;
+    font-weight: 600;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+/* Estilos para la sección de encabezado */
+.dashboard-header {
+    color: white;
+    padding: 2rem 1rem;
+    border-radius: .75rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.15);
+}
+
+    .dashboard-header h1 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        font-size: 1.125rem;
+        opacity: 0.8;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+/* Notas explicativas */
+.kpi-note, .chart-note {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: rgba(255 255 255 / 0.7);
+    margin-top: 1rem;
+}
+
+.chart-note {
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 0.75rem;
+}
+
+/* Estilos para links de navbar */
+.navbar-nav .nav-link {
+    color: black;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+}
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link:focus {
+        color: #244BBE;
+        text-decoration: none;
+        transform: scale(1.1); /* Escala un 10% */
+        transition: transform 0.3s ease; /* Suaviza la transición */
+    }

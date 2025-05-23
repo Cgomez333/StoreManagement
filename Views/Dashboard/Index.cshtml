@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Dashboard de Ventas";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Sección superior destacada -->
+<div class="dashboard-header text-center mx-auto gradient-bg">
+    <h1>Dashboard de Ventas</h1>
+    <p>
+        Visualiza de forma clara y dinámica el desempeño de tus ventas,
+        con métricas clave y gráficas interactivas que te ayudarán a
+        tomar decisiones basadas en datos actuales y comparativos.
+    </p>
+</div>
+
+<div class="container-fluid">
+    <!-- KPI Cards -->
+    <div class="row mb-5 g-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-kpi gradient-1 h-100 position-relative">
+                <i class="bi bi-currency-dollar"></i>
+                <div class="card-body">
+                    <h6 class="text-white-50">Ingresos (MTD)</h6>
+                    <h2 id="mtdRevenue" class="fw-bold">$–</h2>
+                    <p id="mtdRevenueCompare" class="mb-0">
+                        <span class="tag">– vs mes pasado ~ </span>
+                    </p>
+                    <p class="kpi-note">Total acumulado de ingresos generados desde el inicio del mes actual hasta hoy.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-kpi gradient-2 h-100 position-relative">
+                <i class="bi bi-basket"></i>
+                <div class="card-body">
+                    <h6 class="text-white-50">Órdenes Procesadas</h6>
+                    <h2 id="ordersCount" class="fw-bold">–</h2>
+                    <p id="ordersCountCompare" class="mb-0">
+                        <span class="tag">– vs mes pasado ~ </span>
+                    </p>
+                    <p class="kpi-note">Número total de órdenes procesadas hasta la fecha en el mes actual.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card bg-white shadow-sm h-100 position-relative overflow-hidden">
+                <i class="bi bi-tags" style="opacity:.1;position:absolute;top:.75rem;right:.75rem;font-size:3rem;"></i>
+                <div class="card-body">
+                    <h6 class="text-muted">Valor Promedio de Productos</h6>
+                    <h2 id="avgProductValue" class="fw-bold">$–</h2>
+                    <p class="mb-0 small text-muted">Precio medio catálogo</p>
+                    <p class="kpi-note text-muted fst-italic mt-1">Precio promedio de los productos disponibles.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card card-kpi gradient-3 h-100 position-relative">
+                <i class="bi bi-graph-up"></i>
+                <div class="card-body">
+                    <h6 class="text-white-50">Valor Promedio de Órdenes</h6>
+                    <h2 id="avgOrderValue" class="fw-bold">$–</h2>
+                    <p id="avgOrderValueCompare" class="mb-0">
+                        <span class="tag">– vs mes pasado ~ </span>
+                    </p>
+                    <p class="kpi-note">Promedio del valor monetario por orden en el mes actual.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-5 g-4">
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-sm">
+                <div class="card-header gradient-5 text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Ingresos por Día</h5>
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="card-body bg-white p-4">
+                    <canvas id="chartMtdSalesByDay" height="180"></canvas>
+                    <p class="chart-note">Visualización diaria del ingreso generado, útil para identificar tendencias y días pico.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-sm">
+                <div class="card-header gradient-6 text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Top 10 Productos</h5>
+                    <i class="bi bi-bar-chart"></i>
+                </div>
+                <div class="card-body bg-white p-4">
+                    <canvas id="chartSalesByProduct" height="180"></canvas>
+                    <p class="chart-note">Los 10 productos con mayor valor en ventas acumuladas durante el mes actual.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-5 g-4">
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-sm">
+                <div class="card-header gradient-7 text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Mejores Clientes</h5>
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="card-body bg-white p-4">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr><th>Cliente</th><th class="text-end">Total</th></tr>
+                        </thead>
+                        <tbody id="tblTopCustomers">
+                            <tr><td colspan="2" class="text-center py-4">Cargando…</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="chart-note">Clientes que más aportan al negocio en ventas acumuladas este mes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-sm">
+                <div class="card-header gradient-8 text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Tendencia de Órdenes</h5>
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="card-body bg-white p-4">
+                    <canvas id="chartOrdersTrend" height="180"></canvas>
+                    <p class="chart-note">Número acumulado de órdenes procesadas durante el mes para detectar crecimiento o estancamiento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
