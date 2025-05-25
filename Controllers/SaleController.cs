@@ -8,37 +8,28 @@ namespace StoreManagement.Controllers
     public class SaleController : Controller
     {
         private readonly StoreDbContext _context;
-        private readonly SaleService _service;
         private const int PageSize = 5;
 
         public SaleController(StoreDbContext context)
         {
             _context = context;
-            _service = new SaleService(_context);
         }
 
-        // Index con paginación y búsqueda por fecha o cliente opcional
+        // Index con paginación y búsqueda
         public async Task<IActionResult> Index(string? searchCustomerName, DateTime? searchDate, int page = 1)
         {
-            var query = _context.Sales
-                .Include(s => s.Customer)
-                .AsQueryable();
+            var query = _context.Sales.Include(s => s.Customer).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchCustomerName))
-            {
                 query = query.Where(s => s.Customer != null && s.Customer.Name.Contains(searchCustomerName));
-            }
 
             if (searchDate.HasValue)
             {
-                // Convertir a UTC para que EF Core y Npgsql no falle
                 var utcDate = DateTime.SpecifyKind(searchDate.Value.Date, DateTimeKind.Utc);
-
                 query = query.Where(s => s.Date >= utcDate && s.Date < utcDate.AddDays(1));
             }
 
             int totalItems = await query.CountAsync();
-
             var sales = await query
                 .OrderByDescending(s => s.Date)
                 .Skip((page - 1) * PageSize)
@@ -49,54 +40,47 @@ namespace StoreManagement.Controllers
             ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
             ViewBag.SearchCustomerName = searchCustomerName;
             ViewBag.SearchDate = searchDate?.ToString("yyyy-MM-dd");
-
             return View(sales);
         }
 
+        // Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var sale = await _service.GetByIdAsync(id.Value);
-            if (sale == null) return NotFound();
+            var sale = await _context.Sales
+                .Include(s => s.Customer)
+                .Include(s => s.SaleDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(s => s.Id == id.Value);
 
+            if (sale == null) return NotFound();
             return View(sale);
         }
 
+        // GET Create
         public IActionResult Create()
         {
-            var sale = new Sale();
             LoadViewBags();
-            return View(sale); // No enviar null
+            return View(new Sale { Date = DateTime.UtcNow });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        // POST Create
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Sale sale)
         {
-            if (!ModelState.IsValid)
-            {
-                LoadViewBags(sale.CustomerId);
-                return View(sale);
-            }
-
-            // 1) Verificar stock
+            // stock y validación modelos
             foreach (var detail in sale.SaleDetails)
             {
-                var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.Id == detail.ProductId);
-
-                if (product == null)
+                var prod = await _context.Products.FindAsync(detail.ProductId);
+                if (prod == null)
                 {
-                    ModelState.AddModelError("", $"Producto con Id {detail.ProductId} no encontrado.");
+                    ModelState.AddModelError("", $"Producto {detail.ProductId} no existe.");
                     break;
                 }
-
-                if (detail.Quantity > product.Stock)
+                if (detail.Quantity > prod.Stock)
                 {
-                    ModelState.AddModelError("",
-                        $"No hay suficiente stock de «{product.Name}». " +
-                        $"Disponibles: {product.Stock}, solicitados: {detail.Quantity}.");
+                    ModelState.AddModelError("", $"Stock insuficiente de «{prod.Name}». Disponible: {prod.Stock}.");
                     break;
                 }
             }
@@ -107,55 +91,78 @@ namespace StoreManagement.Controllers
                 return View(sale);
             }
 
-            // 2) Crear la venta y actualizar stock
-            await _service.CreateAsync(sale);
+            using var tx = await _context.Database.BeginTransactionAsync();
+            // rebaja de stock y cálculo de subtotales
+            foreach (var detail in sale.SaleDetails)
+            {
+                var prod = await _context.Products.FindAsync(detail.ProductId);
+                prod.Stock -= detail.Quantity;
+                detail.Subtotal = detail.Quantity * detail.UnitPrice;
+            }
+            sale.RecalculateTotal();
+            sale.Date = sale.Date.ToUniversalTime();
+
+            _context.Sales.Add(sale);
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-
-
+        // GET Edit
+        // GET: Sale/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var sale = await _service.GetByIdWithDetailsAsync(id.Value);
+            var sale = await _context.Sales
+                .Include(s => s.SaleDetails!)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(s => s.Id == id.Value);
+
             if (sale == null) return NotFound();
+
+            sale.SaleDetails ??= new List<SaleDetail>();
 
             LoadViewBags(sale.CustomerId);
             return View(sale);
         }
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Sale sale)
+        // POST Edit
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Sale submitted)
         {
-            if (id != sale.Id) return NotFound();
+            if (id != submitted.Id) return NotFound();
             if (!ModelState.IsValid)
             {
-                LoadViewBags(sale.CustomerId);
-                return View(sale);
+                LoadViewBags(submitted.CustomerId);
+                return View(submitted);
             }
 
-            // 1) Cargo la venta original con sus detalles
             var original = await _context.Sales
                 .Include(s => s.SaleDetails)
                 .FirstOrDefaultAsync(s => s.Id == id);
             if (original == null) return NotFound();
 
-            // 2) Actualizo campos de cabecera
-            original.Date = sale.Date.ToUniversalTime();
-            original.CustomerId = sale.CustomerId;
+            using var tx = await _context.Database.BeginTransactionAsync();
 
-            // 3) Elimino los detalles que el usuario borró
+            // 1) Restaurar stock de los detalles originales
+            foreach (var od in original.SaleDetails)
+            {
+                var prod = await _context.Products.FindAsync(od.ProductId);
+                prod.Stock += od.Quantity;
+            }
+
+            // 2) Eliminar detalles borrados
             var toRemove = original.SaleDetails
-                .Where(od => !sale.SaleDetails.Any(d => d.Id == od.Id))
+                .Where(od => !submitted.SaleDetails.Any(d => d.Id == od.Id))
                 .ToList();
             _context.SaleDetails.RemoveRange(toRemove);
 
-            // 4) Recorro los detalles enviados
-            foreach (var d in sale.SaleDetails)
+            // 3) Aplicar nuevos y actualizados
+            foreach (var d in submitted.SaleDetails)
             {
+                var prod = await _context.Products.FindAsync(d.ProductId);
                 if (d.Id == 0)
                 {
                     // nuevo
@@ -164,153 +171,78 @@ namespace StoreManagement.Controllers
                 }
                 else
                 {
-                    // existente: actualizo
-                    var existingDetail = original.SaleDetails.First(x => x.Id == d.Id);
-                    existingDetail.Quantity = d.Quantity;
-                    existingDetail.UnitPrice = d.UnitPrice;
-                    existingDetail.Subtotal = d.Quantity * d.UnitPrice;
+                    // existente
+                    var exist = original.SaleDetails.First(x => x.Id == d.Id);
+                    exist.Quantity = d.Quantity;
+                    exist.UnitPrice = d.UnitPrice;
+                    exist.Subtotal = d.Quantity * d.UnitPrice;
                 }
+                // descontar stock
+                prod.Stock -= d.Quantity;
             }
 
-            // 5) Recalculo total y salvo
+            // 4) Actualizar cabecera
+            original.Date = submitted.Date.ToUniversalTime();
+            original.CustomerId = submitted.CustomerId;
             original.RecalculateTotal();
+
             await _context.SaveChangesAsync();
+            await tx.CommitAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
-
+        // GET Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-
-            var sale = await _service.GetByIdAsync(id.Value);
+            var sale = await _context.Sales
+                .Include(s => s.SaleDetails)
+                .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (sale == null) return NotFound();
-
             return View(sale);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        // POST Delete
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteAsync(id);
+            var sale = await _context.Sales
+                .Include(s => s.SaleDetails)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (sale == null) return NotFound();
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+            // restaurar stock
+            foreach (var d in sale.SaleDetails)
+            {
+                var prod = await _context.Products.FindAsync(d.ProductId);
+                prod.Stock += d.Quantity;
+            }
+
+            _context.Sales.Remove(sale);
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
+        // Helpers
         private void LoadViewBags(int? customerId = null)
         {
             ViewBag.CustomerId = new SelectList(
-                _context.Customers.OrderBy(c => c.Name),
-                "Id", "Name", customerId);
+                _context.Customers.OrderBy(c => c.Name), "Id", "Name", customerId);
 
-            // PARA EL dropdown HTML:
             ViewBag.ProductList = _context.Products
                 .OrderBy(p => p.Name)
-                .Select(p => new SelectListItem
-                {
-                    Value = p.Id.ToString(),
-                    Text = p.Name
-                })
+                .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name })
                 .ToList();
 
-            // PARA EL JS:
             ViewBag.ProductsJson = _context.Products
                 .OrderBy(p => p.Name)
                 .Select(p => new { p.Id, p.Name, p.Price })
                 .ToList();
-        }
-
-
-
-        // Servicio interno para manejo de datos Sale
-        private class SaleService
-        {
-            private readonly StoreDbContext _context;
-
-            public SaleService(StoreDbContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<List<Sale>> GetAllAsync()
-            {
-                return await _context.Sales
-                    .Include(s => s.Customer)
-                    .OrderByDescending(s => s.Date)
-                    .ToListAsync();
-            }
-
-            public async Task<Sale?> GetByIdAsync(int id)
-            {
-                return await _context.Sales
-                    .Include(s => s.Customer)
-                    .Include(s => s.SaleDetails)
-                    .FirstOrDefaultAsync(s => s.Id == id);
-            }
-
-            public async Task<Sale?> GetByIdWithDetailsAsync(int id)
-            {
-                return await _context.Sales
-                    .Include(s => s.Customer)
-                    .Include(s => s.SaleDetails)
-                    .FirstOrDefaultAsync(s => s.Id == id);
-            }
-
-
-            public async Task<Sale?> FindAsync(int id)
-            {
-                return await _context.Sales.FindAsync(id);
-            }
-
-            public async Task CreateAsync(Sale sale)
-            {
-                using var tx = await _context.Database.BeginTransactionAsync();
-
-                // Recalcular todos los subtotales, total, y ajustar stock
-                foreach (var detail in sale.SaleDetails)
-                {
-                    // 1) Calcular subtotal
-                    detail.Subtotal = detail.Quantity * detail.UnitPrice;
-
-                    // 2) Restar stock
-                    var prod = await _context.Products
-                        .FirstAsync(p => p.Id == detail.ProductId);
-
-                    prod.Stock -= detail.Quantity;
-                    _context.Products.Update(prod);
-                }
-
-                sale.RecalculateTotal();
-                sale.Date = sale.Date.ToUniversalTime();
-
-                // 3) Finalmente, persistir
-                _context.Sales.Add(sale);
-                await _context.SaveChangesAsync();
-
-                await tx.CommitAsync();
-            }
-
-
-            public async Task<bool> UpdateAsync(Sale sale)
-            {
-                if (!_context.Sales.Any(s => s.Id == sale.Id)) return false;
-
-                sale.Date = sale.Date.ToUniversalTime();
-                _context.Sales.Update(sale);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-
-            public async Task DeleteAsync(int id)
-            {
-                var sale = await _context.Sales.FindAsync(id);
-                if (sale != null)
-                {
-                    _context.Sales.Remove(sale);
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
     }
 }

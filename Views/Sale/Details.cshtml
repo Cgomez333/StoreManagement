@@ -1,59 +1,80 @@
 ﻿@model StoreManagement.Models.Sale
 
 @{
-    ViewData["Title"] = "Detalles de la venta";
+    ViewData["Title"] = "Detalles de la Venta";
 }
 
 <div class="mb-5">
-    <h1>Detalles de la Venta</h1>
+    <h1 class="mb-4">Detalles de la Venta</h1>
 
-    <hr />
-    <dl class="row mb-4">
-        <dt class="col-sm-2">ID</dt>
-        <dd class="col-sm-10">@Model.Id</dd>
+    <!-- Card: Información General -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+            <strong>Información General</strong>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
 
-        <dt class="col-sm-2">Fecha</dt>
-        <dd class="col-sm-10"><i class="bi bi-calendar2-check pe-2"></i>@Model.Date.ToString("yyyy-MM-dd")</dd>
+                <dt class="col-sm-3">Fecha</dt>
+                <dd class="col-sm-9">
+                    <i class="bi bi-calendar2-check pe-2"></i>
+                    @Model.Date.ToString("yyyy-MM-dd")
+                </dd>
 
-        <dt class="col-sm-2">Cliente</dt>
-        <dd class="col-sm-10">
-            <i class="bi bi-person pe-2"></i>@Model.Customer?.Name <strong>(ID: @Model.Customer?.Id)</strong>
-        </dd>
+                <dt class="col-sm-3">Cliente</dt>
+                <dd class="col-sm-9">
+                    <i class="bi bi-person pe-2"></i>
+                    @Model.Customer?.Name <strong>(ID: @Model.Customer?.Id)</strong>
+                </dd>
 
-        <dt class="col-sm-2">Total</dt>
-        <dd class="col-sm-10">
-            @Model.Total.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
-        </dd>
-    </dl>
+                <dt class="col-sm-3">Total</dt>
+                <dd class="col-sm-9">
+                    @Model.Total.ToString("C",
+                             System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                </dd>
+            </dl>
+        </div>
+    </div>
 
-    <h2>Productos</h2>
-    <table class="table table-striped mb-4">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var detail in Model.SaleDetails)
-            {
-                <tr>
-                    <td>@(detail.Product?.Name ?? detail.ProductId.ToString())</td>
-                    <td>@detail.Quantity</td>
-                    <td>
-                        @detail.UnitPrice.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
-                    </td>
-                    <td>
-                        @detail.Subtotal?.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <!-- Card: Productos -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <strong>Productos en la Venta</strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-center">Precio Unitario</th>
+                        <th class="text-center">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.SaleDetails)
+                    {
+                        <tr>
+                            <td>@(d.Product?.Name ?? d.ProductId.ToString())</td>
+                            <td class="text-center">@d.Quantity</td>
+                            <td class="text-center">
+                                @d.UnitPrice.ToString("C",
+                                         System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                            </td>
+                            <td class="text-center">
+                                @d.Subtotal?.ToString("C",
+                                         System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <div class="text-center">
+    <div class="text-end mt-4">
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn gradient-bg text-white me-2">Editar</a>
         <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
     </div>

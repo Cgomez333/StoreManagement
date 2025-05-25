@@ -4,175 +4,210 @@
     ViewData["Title"] = "Editar Venta";
 }
 
-<h1 class="mb-3"><i class="bi bi-gear-fill pe-4"></i><strong>Editar venta</strong></h1>
+<div class="mb-5">
+    <h1 class="mb-4">Editar Venta</h1>
 
-<form asp-action="Edit" method="post" id="saleForm">
-    <input type="hidden" asp-for="Id" />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+    <form asp-action="Edit" method="post" id="saleForm">
+        <input type="hidden" asp-for="Id" />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="Date" class="form-label">Fecha</label>
-            <input asp-for="Date" type="date" class="form-control" value="@Model.Date:yyyy-MM-dd" />
-            <span asp-validation-for="Date" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="CustomerId" class="form-label">Cliente</label>
-            <select asp-for="CustomerId" class="form-select" asp-items="ViewBag.CustomerId">
-                <option value="">-- Seleccione un cliente --</option>
-            </select>
-            <span asp-validation-for="CustomerId" class="text-danger"></span>
-        </div>
-    </div>
-
-    <hr class="mt-5" />
-    <div class="card p-5 mb-5">
-        <h2>Detalles de Venta</h2>
-        <table class="table" id="detailsTable">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                    <th>
-                        <button type="button" id="addDetail" class="btn btn-sm gradient-bg text-white">Agregar</button>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.SaleDetails.Count; i++)
-                {
-                    <tr>
-                        <td>
-                            <input type="hidden" asp-for="SaleDetails[@i].Id" />
-                            <select asp-for="SaleDetails[@i].ProductId"
-                                    class="form-select product-select"
-                                    asp-items="ViewBag.ProductList">
-                                <option value="">-- Producto --</option>
+        <!-- Información de la venta -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <strong>Información de la Venta</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Date" class="form-label">Fecha</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar2-day"></i></span>
+                            <input asp-for="Date" type="date" class="form-control" value="@Model.Date:yyyy-MM-dd" />
+                        </div>
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label">Cliente</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <select asp-for="CustomerId" class="form-select" asp-items="ViewBag.CustomerId">
+                                <option value="">-- Seleccione un cliente --</option>
                             </select>
-                        </td>
-                        <td>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-bag"></i>
-                                </span>
-                                <input asp-for="SaleDetails[@i].Quantity"
-                                       type="number" min="1"
-                                       class="form-control quantity-input" />
-                            </div>
-                            <span asp-validation-for="SaleDetails[@i].Quantity"
-                                  class="text-danger small"></span>
-                        </td>
+                        </div>
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <td>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input asp-for="SaleDetails[@i].UnitPrice"
-                                       type="number" step="0.01"
-                                       class="form-control price-input"
-                                       readonly />
-                            </div>
-                        </td>
-                        <td class="subtotal-cell text-center fw-semibold">
-                            @Model.SaleDetails[i].Subtotal?.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm removeDetail">X</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                    <td id="totalCell">
-                        @Model.Total.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+        <!-- Detalles de la venta -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <strong>Detalles de Venta</strong>
+                <small class="text-muted d-block">Edita cantidades o quita/agrega productos</small>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped align-middle mb-0" id="detailsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-center">Precio Unitario</th>
+                            <th class="text-center">Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.SaleDetails.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <select asp-for="SaleDetails[@i].ProductId"
+                                            class="form-select product-select"
+                                            asp-items="ViewBag.ProductList">
+                                        <option value="">-- Producto --</option>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <input asp-for="SaleDetails[@i].Quantity"
+                                           type="number" min="1"
+                                           class="form-control form-control-sm quantity-input" />
+                                    <span asp-validation-for="SaleDetails[@i].Quantity"
+                                          class="text-danger small"></span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="input-group justify-content-center">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="SaleDetails[@i].UnitPrice"
+                                               type="number" step="0.01"
+                                               class="form-control form-control-sm price-input" readonly />
+                                    </div>
+                                </td>
+                                <td class="subtotal-cell text-center fw-semibold">
+                                    @Model.SaleDetails[i].Subtotal?.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm removeDetail">X</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-secondary">
+                        <tr>
+                            <td colspan="3" class="text-end fw-semibold">Total</td>
+                            <td id="totalCell" class="text-center fw-bold">
+                                @Model.Total
+                                .ToString("C",
+                                System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="card-footer bg-white text-end">
+                <button type="button" id="addDetail" class="btn btn-sm btn-outline-primary">Agregar producto</button>
+            </div>
+        </div>
 
-    <button type="submit" class="btn gradient-bg text-white mb-5"><i class="bi bi-cart-plus-fill pe-2"></i>Guardar cambios</button>
-</form>
+        <div class="text-end mt-4">
+            <button type="submit" class="btn gradient-bg text-white btn-lg">Guardar Venta</button>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ProductsJson));
+          const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ProductsJson));
 
-            function findProductPrice(id) {
-                const p = products.find(x => x.Id == id);
-                return p ? p.Price : 0;
-            }
+          function findPrice(id) {
+            const p = products.find(x => x.Id == id);
+            return p ? p.Price : 0;
+          }
 
-            function updateSubtotal(row) {
-                const qty = parseFloat(row.querySelector('.quantity-input').value) || 0;
-                const price = parseFloat(row.querySelector('.price-input').value) || 0;
-                const sub = qty * price;
-                row.querySelector('.subtotal-cell').textContent = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP'}).format(sub);
-                updateTotal();
-            }
-
-            function updateTotal() {
-                let total = 0;
-                document.querySelectorAll('#detailsTable tbody tr').forEach(r => {
-                    const txt = r.querySelector('.subtotal-cell').textContent.replace(/[^0-9,-]+/g,'').replace(',','.');
-                    total += parseFloat(txt) || 0;
-                });
-                document.getElementById('totalCell').textContent = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP'}).format(total);
-            }
-
-            function onProductChange(e) {
-                const selectedId = e.target.value;
-                const allSelects = document.querySelectorAll('.product-select');
-                let count = 0;
-                allSelects.forEach(s => { if (s.value === selectedId) count++; });
-                if (count > 1) {
-                    alert('Ya agregaste este producto.');
-                    e.target.value = '';
-                    return;
-                }
-                const row = e.target.closest('tr');
-                row.querySelector('.price-input').value = findProductPrice(selectedId).toFixed(2);
-                updateSubtotal(row);
-            }
-
-            function onQuantityChange(e) {
-                updateSubtotal(e.target.closest('tr'));
-            }
-
-            function addDetailRow() {
-                const tbody = document.querySelector('#detailsTable tbody');
-                const i = tbody.children.length;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <select name="SaleDetails[${i}].ProductId" class="form-select product-select">
-                            <option value="">-- Producto --</option>
-                            ${products.map(p=>`<option value="${p.Id}">${p.Name}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td><input name="SaleDetails[${i}].Quantity" type="number" min="1" value="1" class="form-control quantity-input"/></td>
-                    <td><div class="input-group"><span class="input-group-text">$</span>
-                        <input name="SaleDetails[${i}].UnitPrice" type="number" step="0.01" value="0.00" class="form-control price-input" readonly/></div></td>
-                    <td class="subtotal-cell text-center fw-semibold">$0.00</td>
-                    <td><button type="button" class="btn btn-outline-danger btn-sm removeDetail">X</button></td>
-                `;
-                tbody.appendChild(tr);
-                tr.querySelector('.product-select').addEventListener('change', onProductChange);
-                tr.querySelector('.quantity-input').addEventListener('input', onQuantityChange);
-                tr.querySelector('.removeDetail').addEventListener('click', e=>{ e.target.closest('tr').remove(); updateTotal(); });
-            }
-
-            document.getElementById('addDetail').addEventListener('click', addDetailRow);
-            document.querySelectorAll('.product-select').forEach(s => s.addEventListener('change', onProductChange));
-            document.querySelectorAll('.quantity-input').forEach(i => i.addEventListener('input', onQuantityChange));
-            document.querySelectorAll('.removeDetail').forEach(b => b.addEventListener('click', e=>{ e.target.closest('tr').remove(); updateTotal(); }));
-
+          function updateSubtotal(row) {
+            const qty = parseFloat(row.querySelector('.quantity-input').value) || 0;
+            const price = parseFloat(row.querySelector('.price-input').value) || 0;
+            const sub = qty * price;
+            row.querySelector('.subtotal-cell').textContent =
+              new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP'}).format(sub);
             updateTotal();
+          }
+
+          function updateTotal() {
+            let sum = 0;
+            document.querySelectorAll('#detailsTable tbody tr').forEach(r => {
+              const txt = r.querySelector('.subtotal-cell').textContent
+                            .replace(/[^0-9,-]+/g,'').replace(',','.');
+              sum += parseFloat(txt) || 0;
+            });
+            document.getElementById('totalCell').textContent =
+              new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP'}).format(sum);
+          }
+
+          function onProdChange(e) {
+            const sel = e.target;
+            const id = sel.value;
+            if ([...document.querySelectorAll('.product-select')]
+                .filter(s => s.value === id).length > 1) {
+              alert('¡Este producto ya está agregado!');
+              sel.value = '';
+              return;
+            }
+            const row = sel.closest('tr');
+            row.querySelector('.price-input').value = findPrice(id).toFixed(2);
+            updateSubtotal(row);
+          }
+
+          function onQtyChange(e) {
+            updateSubtotal(e.target.closest('tr'));
+          }
+
+          function addDetailRow() {
+            const tbody = document.querySelector('#detailsTable tbody');
+            const i = tbody.children.length;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>
+                <select name="SaleDetails[${i}].ProductId" class="form-select product-select">
+                  <option value="">-- Producto --</option>
+                  ${products.map(p=>`<option value="${p.Id}">${p.Name}</option>`).join('')}
+                </select>
+              </td>
+              <td class="text-center">
+                <input name="SaleDetails[${i}].Quantity"
+                       type="number" min="1" value="1"
+                       class="form-control form-control-sm quantity-input"/>
+              </td>
+              <td class="text-center">
+                <div class="input-group justify-content-center">
+                  <span class="input-group-text">$</span>
+                  <input name="SaleDetails[${i}].UnitPrice"
+                         type="number" step="0.01" value="0.00"
+                         class="form-control form-control-sm price-input" readonly/>
+                </div>
+              </td>
+              <td class="subtotal-cell text-center fw-semibold">$0.00</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-outline-danger btn-sm removeDetail">X</button>
+              </td>`;
+            tbody.appendChild(tr);
+            tr.querySelector('.product-select').addEventListener('change', onProdChange);
+            tr.querySelector('.quantity-input').addEventListener('input', onQtyChange);
+            tr.querySelector('.removeDetail').addEventListener('click', e => {
+              e.target.closest('tr').remove(); updateTotal();
+            });
+          }
+
+          document.getElementById('addDetail').addEventListener('click', addDetailRow);
+          document.querySelectorAll('.product-select').forEach(s => s.addEventListener('change', onProdChange));
+          document.querySelectorAll('.quantity-input').forEach(i => i.addEventListener('input', onQtyChange));
+          document.querySelectorAll('.removeDetail').forEach(b => b.addEventListener('click', e => {
+            e.target.closest('tr').remove(); updateTotal();
+          }));
+
+          updateTotal();
         });
     </script>
 

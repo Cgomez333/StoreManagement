@@ -12,7 +12,7 @@ public class Sale
     public int CustomerId { get; set; }
     public Customer? Customer { get; set; }
 
-    public List<SaleDetail>? SaleDetails { get; set; } = new List<SaleDetail>();
+    public List<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
 
     // Método para recalcular Total basado en SaleDetails
     public void RecalculateTotal()
