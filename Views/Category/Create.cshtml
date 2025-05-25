@@ -19,9 +19,15 @@
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
 
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Descripción</label>
+                        <textarea asp-for="Description" class="form-control" placeholder="Ingrese una descripción"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn gradient-bg text-light">Crear</button>
+                        <button type="submit" class="btn gradient-bg text-light">Crear Categoría</button>
                     </div>
                 </form>
             </div>

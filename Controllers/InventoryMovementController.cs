@@ -16,12 +16,14 @@ namespace StoreManagement.Controllers
             _service = new InventoryMovementService(_context);
         }
 
+        // GET: InventoryMovement
         public async Task<IActionResult> Index()
         {
             var movements = await _service.GetAllAsync();
             return View(movements);
         }
 
+        // GET: InventoryMovement/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -30,29 +32,63 @@ namespace StoreManagement.Controllers
             return View(movement);
         }
 
+        // GET: InventoryMovement/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.ProductId = new SelectList(await _context.Products.ToListAsync(), "Id", "Name");
-            return View();
+            await PopulateProductsDropDown();
+            // inicializamos fecha con ahora UTC
+            return View(new InventoryMovement { Date = DateTime.UtcNow });
         }
 
-
+        // POST: InventoryMovement/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(InventoryMovement movement)
         {
-            Console.WriteLine($"ProductId recibido: {movement.ProductId}");
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                await _service.CreateAsync(movement);
-                return RedirectToAction(nameof(Index));
+                await PopulateProductsDropDown(movement.ProductId);
+                return View(movement);
             }
 
-            ViewBag.ProductId = new SelectList(await _context.Products.ToListAsync(), "Id", "Name", movement.ProductId);
-            TempData["Error"] = "El modelo no es válido.";
+            // asegurar que Date tenga Kind=UTC
+            movement.Date = movement.Date.ToUniversalTime();
+
+            await _service.CreateAsync(movement);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: InventoryMovement/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+            var movement = await _service.GetByIdAsync(id.Value);
+            if (movement == null) return NotFound();
+            await PopulateProductsDropDown(movement.ProductId);
             return View(movement);
         }
 
+        // POST: InventoryMovement/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, InventoryMovement movement)
+        {
+            if (id != movement.Id) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                await PopulateProductsDropDown(movement.ProductId);
+                return View(movement);
+            }
+
+            // convertir a UTC antes de guardar
+            movement.Date = movement.Date.ToUniversalTime();
+
+            var success = await _service.UpdateAsync(movement);
+            if (!success) return NotFound();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: InventoryMovement/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -61,12 +97,22 @@ namespace StoreManagement.Controllers
             return View(movement);
         }
 
+        // POST: InventoryMovement/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task PopulateProductsDropDown(object selectedValue = null)
+        {
+            var products = await _context.Products
+                .OrderBy(p => p.Name)
+                .Select(p => new { p.Id, p.Name })
+                .ToListAsync();
+            ViewBag.ProductId = new SelectList(products, "Id", "Name", selectedValue);
         }
 
         private class InventoryMovementService
@@ -79,38 +125,37 @@ namespace StoreManagement.Controllers
             }
 
             public async Task<List<InventoryMovement>> GetAllAsync()
-            {
-                return await _context.InventoryMovements
+                => await _context.InventoryMovements
                     .Include(m => m.Product)
                     .OrderByDescending(m => m.Date)
                     .ToListAsync();
-            }
 
             public async Task<InventoryMovement?> GetByIdAsync(int id)
-            {
-                return await _context.InventoryMovements
+                => await _context.InventoryMovements
                     .Include(m => m.Product)
                     .FirstOrDefaultAsync(m => m.Id == id);
-            }
 
             public async Task CreateAsync(InventoryMovement movement)
             {
-                var existingIds = await _context.InventoryMovements.Select(m => m.Id).ToListAsync();
-                int newId = 1;
-                while (existingIds.Contains(newId)) newId++;
-                movement.Id = newId;
-                movement.Date = DateTime.UtcNow;
-
                 _context.InventoryMovements.Add(movement);
                 await _context.SaveChangesAsync();
             }
 
+            public async Task<bool> UpdateAsync(InventoryMovement movement)
+            {
+                if (!await _context.InventoryMovements.AnyAsync(m => m.Id == movement.Id))
+                    return false;
+                _context.InventoryMovements.Update(movement);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
             public async Task DeleteAsync(int id)
             {
-                var movement = await _context.InventoryMovements.FindAsync(id);
-                if (movement != null)
+                var m = await _context.InventoryMovements.FindAsync(id);
+                if (m != null)
                 {
-                    _context.InventoryMovements.Remove(movement);
+                    _context.InventoryMovements.Remove(m);
                     await _context.SaveChangesAsync();
                 }
             }
