@@ -16,5 +16,14 @@
             public DbSet<Sale> Sales { get; set; }
             public DbSet<SaleDetail> SaleDetails { get; set; }
             public DbSet<InventoryMovement> InventoryMovements { get; set; }
-        }
+            public DbSet<User> Users { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder builder)
+            {
+                base.OnModelCreating(builder);
+                builder.Entity<User>()
+                    .HasIndex(u => u.Email)
+                    .IsUnique();
+            }
+    }
     }
