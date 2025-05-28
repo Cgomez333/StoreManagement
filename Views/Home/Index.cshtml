@@ -41,19 +41,37 @@
 </style>
 
 <div class="mb-5">
-<section class="hero d-flex align-items-center" style="height: 90vh;">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold text-light mb-3">Bienvenido a StoreManagement</h1>
-        <p class="text-light mb-4 fs-5" style="max-width: 700px; margin-left: auto; margin-right:auto">
-            Administra <strong>ventas</strong>, <strong>productos</strong>, <strong>categorías</strong>, <strong>proveedores</strong>, <strong>movimientos</strong> e <strong>estadísticas en tiempo real</strong> en una plataforma moderna y eficiente.
-        </p>
-        <a asp-controller="Account" asp-action="Login"
-           class="btn btn-lg btn-light px-5 shadow-sm"
-           style="border-radius: 50px; font-weight: 600; color=black;">
-            Iniciar Sesión
-        </a>
-    </div>
-</section>
+
+    @if (!User.Identity.IsAuthenticated) {
+        <section class="hero d-flex align-items-center" style="height: 90vh;">
+            <div class="container text-center">
+                <h1 class="display-4 fw-bold text-light mb-3">Bienvenido a StoreManagement</h1>
+                <p class="text-light mb-4 fs-5" style="max-width: 700px; margin-left: auto; margin-right:auto">
+                    Administra <strong>ventas</strong>, <strong>productos</strong>, <strong>categorías</strong>, <strong>proveedores</strong>, <strong>movimientos</strong> e <strong>estadísticas en tiempo real</strong> en una plataforma moderna y eficiente.
+                </p>
+                <a asp-controller="Account" asp-action="Login"
+                   class="btn btn-lg btn-light px-5 shadow-sm"
+                   style="border-radius: 50px; font-weight: 600; color=black;">
+                    Iniciar Sesión
+                </a>
+            </div>
+        </section>
+    } else {
+        <section class="hero d-flex align-items-center" style="height: 90vh;">
+            <div class="container text-center">
+                <h1 class="display-4 fw-bold text-light mb-3">Bienvenido a StoreManagement</h1>
+                <p class="text-light mb-4 fs-5" style="max-width: 700px; margin-left: auto; margin-right:auto">
+                    Administra <strong>ventas</strong>, <strong>productos</strong>, <strong>categorías</strong>, <strong>proveedores</strong>, <strong>movimientos</strong> e <strong>estadísticas en tiempo real</strong> en una plataforma moderna y eficiente.
+                </p>
+                <a asp-controller="InventoryManagement" asp-action="Index"
+                   class="btn btn-lg btn-light px-5 shadow-sm"
+                   style="border-radius: 50px; font-weight: 600; color=black;">
+					Administra los recursos de tu negocio
+                </a>
+            </div>
+        </section>
+    }
+
 
 <section class="py-5 bg-light rounded-3 shadow-sm">
     <div class="container">
@@ -98,13 +116,15 @@
     </div>
 </section>
 
-<section class="py-5 text-center">
-    <div class="container">
-        <h3 class="fw-bold mb-3">¿Listo para optimizar tu negocio?</h3>
-        <p class="text-muted fs-5 mb-4">Comienza con una plataforma intuitiva que centraliza todas las operaciones.</p>
-        <a asp-controller="Account" asp-action="Login" class="btn btn-lg px-5 gradient-bg text-light">
-            Iniciar Sesión Ahora
-        </a>
-    </div>
-</section>
+    @if (!User.Identity.IsAuthenticated) {
+        <section class="py-5 text-center">
+            <div class="container">
+                <h3 class="fw-bold mb-3">¿Listo para optimizar tu negocio?</h3>
+                <p class="text-muted fs-5 mb-4">Comienza con una plataforma intuitiva que centraliza todas las operaciones.</p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-lg px-5 gradient-bg text-light">
+                    Iniciar Sesión Ahora
+                </a>
+            </div>
+        </section>
+    }
 </div>
