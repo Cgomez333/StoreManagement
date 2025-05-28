@@ -12,25 +12,27 @@
             <tr>
                 <th>ID</th>
                 <th>Nombre</th>
-                <th></th>
+                <th>Descripción</th>
+                <th class="text-center">Acciones</th>
             </tr>
         </thead>
         <tbody>
-        @if (Model != null)
-        {
-            @foreach (var item in Model)
+            @if (Model != null)
             {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Name</td>
-                    <td class="text-center">
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Editar</a>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Detalles</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-danger">Eliminar</a>
-                    </td>
-                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@(item.Description?.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Editar</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-dark">Detalles</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm btn-hover-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                }
             }
-        }
         </tbody>
     </table>
 
