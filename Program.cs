@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using System.Globalization;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace StoreManagement
 {
@@ -13,22 +15,23 @@ namespace StoreManagement
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // 1. Configurar DbContext
             builder.Services.AddDbContext<StoreDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // 2. Política global que exige autenticación
+            var keysFolder = Path.Combine(builder.Environment.ContentRootPath, "keys");
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
+                .SetApplicationName("StoreManagementApp");
+
             var requireAuthPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build();
 
-            // 3. Añadir MVC con filtro global de autorización
             builder.Services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(new AuthorizeFilter(requireAuthPolicy));
             });
 
-            // 4. Configurar cookie-based authentication
             builder.Services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opts =>
@@ -36,10 +39,10 @@ namespace StoreManagement
                     opts.LoginPath = "/Account/Login";
                     opts.Cookie.Name = "StoreAuth";
                     opts.ExpireTimeSpan = TimeSpan.FromHours(2);
+                    opts.Cookie.SameSite = SameSiteMode.Lax; // Importante para la seguridad
                 });
             builder.Services.AddAuthorization();
 
-            // 5. Cultura por defecto (es-CO)
             var culture = new CultureInfo("es-CO")
             {
                 NumberFormat = { NumberDecimalSeparator = "." }
@@ -49,7 +52,12 @@ namespace StoreManagement
 
             var app = builder.Build();
 
-            // 6. Pipeline de middleware
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -59,14 +67,19 @@ namespace StoreManagement
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // 7. Rutas
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
+                dbContext.Database.Migrate();
+            }
 
             app.Run();
         }
